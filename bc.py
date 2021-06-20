@@ -33,26 +33,32 @@ def get_user_choice():
 def print_blockchain_blocks():
      # Outputs Blockchain list values
         for block in blockchain:
-            print(f'Outputting Block {block}\n')  
+            print(f'Outputting Block {block}\n')
+        else:
+            print('='*20)
 
 def verify_chain():
-    block_index = 0
-    is_valid = True
-    for block in blockchain:
-        print(block)
+    #block_index = 0 # keeps track of the block we're currently on
+    is_valid = True # flag
+    for block_index in range(len(blockchain)):
+        print('Verifying block....', blockchain[block_index])
+        print(f'Blockchain -> {blockchain}')
+        print(f'Blockchain Length: {len(blockchain)}')
         if block_index == 0:
-            block_index += 1
             continue
-        elif block[0] == blockchain[block_index - 1]:
+        elif blockchain[block_index][0] == blockchain[block_index - 1]:
+            # Compares the first block 
+            print(f'Comparing Blocks {blockchain[block_index][0]} ||| {blockchain[block_index -1]}')
             is_valid = True
         else:
             is_valid = False
             break
-        block_index += 1
     return is_valid
 
-#================================================================================================
-while True:
+#================================================================================================#
+waiting_for_input = True
+
+while waiting_for_input:
     print("""
     Please choose an option:
     1) Add a new transation transaction
@@ -73,9 +79,13 @@ while True:
         if len(blockchain) >= 1:
             blockchain[0] = [100000]
     elif user_choice == 'q':
-        break
+        waiting_for_input = False
     else:
        print('Invalid input!')
     if not verify_chain():
+        print_blockchain_blocks()
         print('Invalid Blochain')
         break
+else:
+    print('User left!')
+print('Done')
