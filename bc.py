@@ -1,5 +1,11 @@
 # Initialize blockchain list
-blockchain = []
+genesis_block = {
+    'previous_hash': '',
+    'index': 0,
+    'transactions': []
+}
+
+blockchain = [genesis_block]
 open_transations = []
 owner = 'attack-titan'
 
@@ -27,9 +33,22 @@ def add_transaction(recipient, sender=owner, amount=1.0):
     open_transations.append(transaction)
     
 
-
 def mine_block():
-    pass
+    last_block = blockchain[-1]
+    hashed_block = ''
+    for key in last_block:
+        value = last_block[key]
+        hashed_block = hashed_block + str(value)
+
+    print(hashed_block)
+    block = {
+        'previous_hash': hashed_block,
+        'index': len(blockchain),
+        'transactions':open_transations
+    }
+    blockchain.append(block)
+
+
 
 def get_transaction_value():
     """ Returns the input of the user (a new transaction amount) as a float. """
@@ -73,10 +92,11 @@ waiting_for_input = True
 while waiting_for_input:
     print("""
     Please choose an option:
-    1) Add a new transation transaction
-    2) Output the blockchain's blocks
-    h) Hack Blockchain
-    q) Quit
+    1) Add a new transation transaction.
+    2) Mine a new block.
+    3) Output the blockchain's blocks.
+    h) Hack Blockchain.
+    q) Quit.
     """)
 
     # user input
@@ -88,6 +108,8 @@ while waiting_for_input:
         add_transaction(recipient, amount=amount) # sender arg is skipped here, bc is set as default on function definition
         print('Open Transactions ----> ', open_transations)
     elif user_choice == '2':
+        mine_block()
+    elif user_choice == '3':
         print_blockchain_blocks()
     elif user_choice == 'h':
         if len(blockchain) >= 1:
@@ -96,10 +118,10 @@ while waiting_for_input:
         waiting_for_input = False
     else:
        print('Invalid input!')
-    if not verify_chain():
-        print_blockchain_blocks()
-        print('Invalid Blochain')
-        break
+    # if not verify_chain():
+    #     print_blockchain_blocks()
+    #     print('Invalid Blochain')
+    #     break
 else:
     print('User left!')
 print('Done')
