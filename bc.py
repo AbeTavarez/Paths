@@ -10,6 +10,14 @@ open_transations = []
 owner = 'attack-titan'
 
 
+def hash_block(block):
+    """ Hashing...
+        Iterade through the last block(dict) 
+        And join each value in a str separated with - to create the hashed_block
+    """
+    return '-'.join([str(block[key]) for key in block] )
+
+
 def get_last_bc_value():
     """ Returns last value of the blockchain """
     if len(blockchain) < 1:
@@ -36,16 +44,14 @@ def add_transaction(recipient, sender=owner, amount=1.0):
 def mine_block():
     # First we take the last block(dict) from blockchain
     last_block = blockchain[-1]
-    print('Last Block ---> ', last_block)
-    # Hashing...
-    # Iterade through the last block(dict) 
-    # And join each value in a str separated with - to create the hashed_block
-    hashed_block = '-'.join([str(print(last_block[key])) for key in last_block] )
+    # print('Last Block ---> ', last_block)
+    
+    hashed_block = hash_block(last_block)
     print(hashed_block)
     block = {
         'previous_hash': hashed_block,
         'index': len(blockchain),
-        'transactions':open_transations
+        'transactions': open_transations
     }
     blockchain.append(block)
 
@@ -67,10 +73,17 @@ def print_blockchain_blocks():
         for block in blockchain:
             print(f'Outputting Block {block}\n')
         else:
-            print('='*20)
+            print('=' * 40)
 
 def verify_chain():
-    pass
+    """ Verify the current blockchain and return True if it's valid"""
+    for index, block in enumerate(blockchain):
+        if index == 0:
+            continue
+        if block['previous_hash'] != hash_block(blockchain[index -1]):
+            return False
+    return True
+
 
 #================================================================================================#
 waiting_for_input = True
@@ -92,22 +105,30 @@ while waiting_for_input:
         tx_data = get_transaction_value()
         recipient, amount = tx_data
         add_transaction(recipient, amount=amount) # sender arg is skipped here, bc is set as default on function definition
-        print('Open Transactions ----> ', open_transations)
+        # print('Open Transactions ----> ', open_transations)
     elif user_choice == '2':
         mine_block()
     elif user_choice == '3':
         print_blockchain_blocks()
     elif user_choice == 'h':
         if len(blockchain) >= 1:
-            blockchain[0] = [100000]
+            blockchain[0] = {
+                'previous_hash': '',
+                'index': 0,
+                'transactions': [{
+                    'sender': 'Founding-Titan', 
+                    'Recipient': 'Attack-Titan',
+                    'amount': 1000000.00
+                }]
+            }
     elif user_choice == 'q':
         waiting_for_input = False
     else:
        print('Invalid input!')
-    # if not verify_chain():
-    #     print_blockchain_blocks()
-    #     print('Invalid Blochain')
-    #     break
+    if not verify_chain():
+        print_blockchain_blocks()
+        print('Invalid Blockhain')
+        break
 else:
     print('User left!')
 print('Done')
