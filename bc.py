@@ -7,7 +7,18 @@ genesis_block = {
 
 blockchain = [genesis_block]
 open_transations = []
-owner = 'attack-titan'
+owner = 'Attack-Titan'
+participants = {'Attack-Titan'}
+# Block for option 3
+hacked_block = {
+                'previous_hash': '',
+                'index': 0,
+                'transactions': [{
+                    'sender': 'Founding-Titan', 
+                    'Recipient': 'Attack-Titan',
+                    'amount': 1000000.00
+                }]
+            }
 
 
 def hash_block(block):
@@ -16,6 +27,31 @@ def hash_block(block):
         And join each value in a str separated with - to create the hashed_block
     """
     return '-'.join([str(block[key]) for key in block] )
+
+
+def get_balance(participant):
+    # In list comprehention we get back the first list of transations from the genesis block
+    tx_sender1 = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
+    # Here we do the same as in the above code but we don't get back the genesis block
+    tx_sender = []
+    for block in blockchain:
+        for tx in  block['transactions']:
+            if tx['sender'] == participant:
+                tx_sender.append(tx['amount'])
+
+    print('TXSENDER --> ', tx_sender1)
+    #
+    amount_sent = 0
+    for tx in tx_sender1:
+        if len(tx) > 0:
+            amount_sent += tx[0]
+    tx_recipient = [[tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant] for block in blockchain]
+    amount_recieved = 0
+    for tx in tx_recipient:
+        if len(tx) > 0:
+            amount_recieved += tx[0]
+    return amount_recieved - amount_sent
+
 
 
 def get_last_bc_value():
@@ -39,6 +75,8 @@ def add_transaction(recipient, sender=owner, amount=1.0):
         'amount': amount
     }
     open_transations.append(transaction)
+    participants.add(sender)
+    participants.add(recipient)
     
 
 def mine_block():
@@ -54,6 +92,7 @@ def mine_block():
         'transactions': open_transations
     }
     blockchain.append(block)
+    return True
 
 
 
@@ -94,6 +133,7 @@ while waiting_for_input:
     1) Add a new transation transaction.
     2) Mine a new block.
     3) Output the blockchain's blocks.
+    4) Output participants.
     h) Hack Blockchain.
     q) Quit.
     """)
@@ -107,20 +147,15 @@ while waiting_for_input:
         add_transaction(recipient, amount=amount) # sender arg is skipped here, bc is set as default on function definition
         # print('Open Transactions ----> ', open_transations)
     elif user_choice == '2':
-        mine_block()
+        if mine_block():
+            open_transations = []
     elif user_choice == '3':
         print_blockchain_blocks()
+    elif user_choice == '4':
+        print(participants)
     elif user_choice == 'h':
         if len(blockchain) >= 1:
-            blockchain[0] = {
-                'previous_hash': '',
-                'index': 0,
-                'transactions': [{
-                    'sender': 'Founding-Titan', 
-                    'Recipient': 'Attack-Titan',
-                    'amount': 1000000.00
-                }]
-            }
+            blockchain[0] = hacked_block
     elif user_choice == 'q':
         waiting_for_input = False
     else:
@@ -129,6 +164,7 @@ while waiting_for_input:
         print_blockchain_blocks()
         print('Invalid Blockhain')
         break
+    print(get_balance('Attack-Titan'))
 else:
     print('User left!')
 print('Done')
