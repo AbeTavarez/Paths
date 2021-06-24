@@ -64,6 +64,10 @@ def get_last_bc_value():
     return blockchain[-1]
 
 
+def verify_transaction(transaction):
+    sender_balance = get_balance(transaction['sender'])
+    return sender_balance >= transaction['amount']
+
 def add_transaction(recipient, sender=owner, amount=1.0):
     """ Append a new transaction value as well as the last blockchain value to the blockchain
 
@@ -77,9 +81,13 @@ def add_transaction(recipient, sender=owner, amount=1.0):
         'recipient': recipient,
         'amount': amount
     }
-    open_transations.append(transaction)
-    participants.add(sender)
-    participants.add(recipient)
+    if verify_transaction(transaction):
+        open_transations.append(transaction)
+        participants.add(sender)
+        participants.add(recipient)
+        return True
+    else:
+        return False
     
 
 def mine_block():
